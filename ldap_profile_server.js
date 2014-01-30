@@ -1,7 +1,7 @@
 
 // check settings
 if (! (Meteor.settings && Meteor.settings.ldap && Meteor.settings.ldap.url && Meteor.settings.ldap.base)) {
-  throw new Error({message: "Missing LDAP configuration"});
+  throw new Error("Missing LDAP configuration");
 }
 
 var ldap = Npm.require('ldapjs');
@@ -14,7 +14,7 @@ var bindSecret = Meteor.settings.ldap.bindSecret || "";
 client.bind(bindDn, bindSecret, function(err) {
   if (err) {
     console.error('accounts-ldap-profile: bind error'+err.message);
-    throw new Error({message: "Unable to bind to LDAP"});
+    throw new Error("Unable to bind to LDAP");
   }
   
   console.log('accounts-ldap-profile: bind ok');
@@ -40,12 +40,18 @@ var ldapOnCreateUser = function(options, user) {
       }
       return false;
     });
-  } else if (!uid) {
-    console.error("Unable to get uid for ldap request");
+  } else if (!uid && Meteor.settings.ldap.throwError) {
+    throw new Error("Unable to extract a uid in this user object");
   }
 
-  if (uid)
-    user.profile = _.extend(user.profile || {}, ldapGetAttributes(uid));
+  if (uid) {
+    var res = ldapGetAttributes(uid);
+
+    if (!res && Meteor.settings.ldap.throwError)
+      throw new Error("User not found in LDAP directory");
+    else
+      user.profile = _.extend(user.profile || {}, res);
+  }
 
   return user;
 }
@@ -57,12 +63,12 @@ var ldapGetAttributes = function(uid) {
   var base = Meteor.settings.ldap.base;
   var opts = {
     scope: Meteor.settings.ldap.scope || "one",
-    filter: "(uid="+uid+")"
+    filter: "(uid="+uid+"g)"
   };
   client.search(base, opts, function(err, res) {
     if (err) {
       console.error('accounts-ldap-profile: error: ' + err.message);
-      future.return({});
+      future.return();
       return;
     }
 
@@ -79,13 +85,13 @@ var ldapGetAttributes = function(uid) {
     res.on('error', function(err) {
       console.error('accounts-ldap-profile: res error: ' + err.message);
       if (!future.isResolved())
-        future.return({});
+        future.return();
     });
 
     res.on('end', function(result) {
       console.log('accounts-ldap-profile: request status ' + result.status);
       if (!future.isResolved())
-        future.return({});
+        future.return();
     });
   });
 

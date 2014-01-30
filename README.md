@@ -15,7 +15,8 @@ put LDAP settings in Meteor.settings (for exemple using METEOR_SETTINGS env or -
     "bindSecret": "thesecret",
     "scope": "one",
     "nameAttribute": "displayName",
-    "forceUsername": true
+    "forceUsername": true,
+    "throwError": true,
   },
 ```
 
@@ -23,6 +24,11 @@ put LDAP settings in Meteor.settings (for exemple using METEOR_SETTINGS env or -
 * to bind anonymous, set bindDn and bindSecret to empty string
 * default scope is "one" (can be "base", "one" and "tree")
 * default nameAttribute is displayName, fallback to uid if not found
-* forceUsername is default to true. It just set the uid as user.username
+* forceUsername to true will copy the uid as user.username
+* throwError will abort user creation if it's not found in directory
 
-the uid used to search the ldap entry is the first user.services.[servicename].id found.
+## Notes
+
+LDAP search use a simple filter based on uid attribute. the uid used to search the entry is the username property or first user.services.[servicename].id found.
+
+The package use the Accounts.onCreateUser function to reference itself. This function can only be called once, so, be sure to not have another package using it.
