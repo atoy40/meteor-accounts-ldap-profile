@@ -62,10 +62,16 @@ var ldapGetAttributes = function(uid) {
   var future = new Future();
 
   var base = Meteor.settings.ldap.base;
+
+  // set filter
+  var filter = Meteor.settings.ldap.filter || "(uid=%uid)";
+  filter = filter.replace(/%uid/g, uid);
+
   var opts = {
     scope: Meteor.settings.ldap.scope || "one",
-    filter: "(uid="+uid+")"
+    filter: filter
   };
+
   client.search(base, opts, function(err, res) {
     if (err) {
       console.error('accounts-ldap-profile: error: ' + err.message);

@@ -13,6 +13,7 @@ put LDAP settings in Meteor.settings (for exemple using METEOR_SETTINGS env or -
     "base": "ou=people,dc=mydomain",
     "bindDn": "cn=admin,dc=mydomain",
     "bindSecret": "thesecret",
+    "filter": "(&(uid=%uid)(objectClass=inetOrgPerson))",
     "scope": "one",
     "nameAttribute": "displayName",
     "forceUsername": true,
@@ -22,6 +23,7 @@ put LDAP settings in Meteor.settings (for exemple using METEOR_SETTINGS env or -
 
 * url and base are mandatory
 * to bind anonymous, set bindDn and bindSecret to empty string
+* filter allow you to specify the search filter. all instances of %uid will be replaced. Default is "(uid=%uid)"
 * default scope is "one" (can be "base", "one" and "tree")
 * default nameAttribute is displayName, fallback to uid if not found
 * forceUsername to true will copy the uid as user.username
