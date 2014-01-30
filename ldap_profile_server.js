@@ -44,12 +44,13 @@ var ldapOnCreateUser = function(options, user) {
     throw new Error("Unable to extract a uid in this user object");
   }
 
+  // search in directory and extends user objet
   if (uid) {
     var res = ldapGetAttributes(uid);
 
     if (!res && Meteor.settings.ldap.throwError)
       throw new Error("User not found in LDAP directory");
-    else
+    else if (res)
       user.profile = _.extend(user.profile || {}, res);
   }
 
@@ -63,7 +64,7 @@ var ldapGetAttributes = function(uid) {
   var base = Meteor.settings.ldap.base;
   var opts = {
     scope: Meteor.settings.ldap.scope || "one",
-    filter: "(uid="+uid+"g)"
+    filter: "(uid="+uid+")"
   };
   client.search(base, opts, function(err, res) {
     if (err) {
@@ -89,7 +90,6 @@ var ldapGetAttributes = function(uid) {
     });
 
     res.on('end', function(result) {
-      console.log('accounts-ldap-profile: request status ' + result.status);
       if (!future.isResolved())
         future.return();
     });
