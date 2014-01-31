@@ -51,7 +51,11 @@ var ldapOnCreateUser = function(options, user) {
     if (!res && Meteor.settings.ldap.throwError)
       throw new Error("User not found in LDAP directory");
     else if (res)
-      user.profile = _.extend(user.profile || {}, res);
+      if (_.has(res, "mail") && _.isString(res.mail) && res.mail.length > 0) {
+        user.emails = [ { address: res.mail, verified: true } ];
+        delete res['mail'];
+      }
+      user.profile = _.extend(_.omit(user.profile, 'mail') || {}, res);
   }
 
   return user;
@@ -85,7 +89,8 @@ var ldapGetAttributes = function(uid) {
         future.return({
           name: entry.object[Meteor.settings.ldap.nameAttribute || 'displayName'] ||
             entry.object.displayName ||
-            entry.object.uid
+            entry.object.uid,
+          mail: entry.object[Meteor.settings.ldap.mailAttribute || 'mail']
         });
     });
 

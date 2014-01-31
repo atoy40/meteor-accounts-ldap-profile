@@ -16,6 +16,7 @@ put LDAP settings in Meteor.settings (for exemple using METEOR_SETTINGS env or -
     "filter": "(&(uid=%uid)(objectClass=inetOrgPerson))",
     "scope": "one",
     "nameAttribute": "displayName",
+    "mailAttribute": "mail",
     "forceUsername": true,
     "throwError": true,
   },
@@ -26,6 +27,7 @@ put LDAP settings in Meteor.settings (for exemple using METEOR_SETTINGS env or -
 * filter allow you to specify the search filter. all instances of %uid will be replaced. Default is "(uid=%uid)"
 * default scope is "one" (can be "base", "one" and "tree")
 * default nameAttribute is displayName, fallback to uid if not found
+* default mailAttribute is mail. It's used to populate user.emails array.
 * forceUsername to true will copy the uid as user.username
 * throwError will abort user creation if it's not found in directory
 
