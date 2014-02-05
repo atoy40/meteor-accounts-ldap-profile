@@ -5,7 +5,9 @@ if (! (Meteor.settings && Meteor.settings.ldap && Meteor.settings.ldap.url && Me
 }
 
 var ldap = Npm.require('ldapjs');
-var client = ldap.createClient({ url: Meteor.settings.ldap.url, timeout: 10*1000 });
+var client = ldap.createClient(
+  _.pick(Meteor.settings.ldap, 'url', 'timeout', 'connectTimeout')
+);
 
 // bind before enabling OnCreateUser handler
 var bindDn = Meteor.settings.ldap.bindDn || "";
@@ -26,26 +28,17 @@ var ldapOnCreateUser = function(options, user) {
   if (options.profile)
     user.profile = options.profile;
 
-  // find a uid value to use with ldap filter
-  var uid;
-  if (user.username) {
-    uid = user.username;
-  } else if (!_.isEmpty(user.services)) {
-    _.find(user.services, function(service) {
-      if (service.id) {
-        uid = service.id;
-        if (Meteor.settings.ldap.forceUsername)
-          user.username = uid;
-        return true;
-      }
-      return false;
-    });
-  } else if (!uid && Meteor.settings.ldap.throwError) {
-    throw new Error("Unable to extract a uid in this user object");
-  }
+  var uid = ldapFindUidFromServices(user);
+
+  // not a supported service
+  if (uid === undefined)
+    return user;
 
   // search in directory and extends user objet
   if (uid) {
+    if (Meteor.settings.ldap.forceUsername)
+      user.username = uid;
+
     var res = ldapGetAttributes(uid);
 
     if (!res && Meteor.settings.ldap.throwError)
@@ -55,6 +48,10 @@ var ldapOnCreateUser = function(options, user) {
         user.emails = [ { address: res.mail, verified: true } ];
         delete res['mail'];
       }
+
+      if (Meteor.settings.ldap.forceUsername)
+        user.username = uid;
+
       user.profile = _.extend(_.omit(user.profile, 'mail') || {}, res);
   }
 
@@ -107,4 +104,34 @@ var ldapGetAttributes = function(uid) {
   });
 
   return future.wait();
+}
+
+var ldapFindUidFromServices = function(user) {
+
+  if (_.isObject(user.services)) {
+
+    // get supported service list
+    var serviceNames = _.keys(user.services);
+    if (_.isArray(Meteor.settings.ldap.supportedServices))
+      serviceNames = _.intersection(serviceNames, Meteor.settings.ldap.supportedServices);
+
+    if (!_.isArray(serviceNames) || serviceNames.length < 1)
+      return undefined;
+
+    var service = _.find(serviceNames, function(name) {
+      return _.isString(user.services[name].id)
+    });
+
+    if (!_.isString(service)) {
+      if (Meteor.settings.ldap.throwError)
+        throw new Error("Unable to extract a uid from supported services");
+      else
+        return undefined;
+    }
+
+    return user.services[service].id;
+  }
+
+  return undefined;
+
 }
