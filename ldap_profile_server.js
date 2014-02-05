@@ -5,7 +5,7 @@ if (! (Meteor.settings && Meteor.settings.ldap && Meteor.settings.ldap.url && Me
 }
 
 var ldap = Npm.require('ldapjs');
-var client = ldap.createClient({ url: Meteor.settings.ldap.url });
+var client = ldap.createClient({ url: Meteor.settings.ldap.url, timeout: 10*1000 });
 
 // bind before enabling OnCreateUser handler
 var bindDn = Meteor.settings.ldap.bindDn || "";
