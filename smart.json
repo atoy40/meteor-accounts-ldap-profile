@@ -3,6 +3,6 @@
   "description": "LDAP support to setup new user's profile (no authentication)",
   "homepage": "https://github.com/atoy40/meteor-accounts-ldap-profile",
   "author": "Anthony Hinsinger",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "git": "https://github.com/atoy40/meteor-accounts-ldap-profile.git"
 }
