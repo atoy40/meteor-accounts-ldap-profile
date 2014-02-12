@@ -11,7 +11,7 @@ put LDAP settings in Meteor.settings (for exemple using METEOR_SETTINGS env or -
   "ldap": {
     "url": "ldap://my.ldapserver.com",
     "base": "ou=people,dc=mydomain",
-    "timeout": 10000
+    "timeout": 10000,
     "bindDn": "cn=admin,dc=mydomain",
     "bindSecret": "thesecret",
     "filter": "(&(uid=%uid)(objectClass=inetOrgPerson))",
