@@ -1,7 +1,7 @@
 meteor-accounts-ldap-profile
 ==================
 
-LDAP support to set profile of new users
+LDAP support to manage user profiles and groups.
 
 ## Usage
 
@@ -19,8 +19,15 @@ put LDAP settings in Meteor.settings (for exemple using METEOR_SETTINGS env or -
     "nameAttribute": "displayName",
     "mailAttribute": "mail",
     "forceUsername": true,
-    "throwError": true,
-    "supportedServices": ["cas"]
+    "allowNotFound": false,
+    "supportedServices": ["cas"],
+    "group": {
+      "base": "ou=groups,dc=univ-pau,dc=fr",
+      "filter": "(&(objectClass=groupOfNames)(member=%dn))",
+      "scope": "one",
+      "nameAttribute": "cn",
+      "descAttribute": "description",
+    }
   },
 ```
 
@@ -32,9 +39,13 @@ put LDAP settings in Meteor.settings (for exemple using METEOR_SETTINGS env or -
 * default **nameAttribute** is displayName, fallback to uid if not found
 * default **mailAttribute** is mail. It's used to populate user.emails array.
 * **forceUsername** to true will copy the uid as user.username
-* **throwError** will abort user creation if it's not found in directory
+* **allowNotFound** will validate login attempt even if user is not found or LDAP connexion failed.
 * **supportedServices** is a list of services to search for a id (use as uid for ldap request). Default is to search in all services.
-
-## Notes
-
-The package use the Accounts.onCreateUser function to reference itself. This function can only be called once, so, be sure to not have another package using it.
+* group management. It require alanning:roles or a API compatible package
+ * **base** Base DN to search groups. It is mandatory if you want group management
+ * **filter** LDAP filter. %uid and %dn can be used and will be replaced. Default is "(&(objectClass=groupOfNames)(member=%dn))"
+ * **scope** LDAP search scope. default is "one" (can be "base", "one" and "tree")
+ * **nameAttribute** is the attribute used for group id. Default to "cn".
+ * **descAttribute** is the attribute used for group name. Default to "description".
+ * **prefix** is a prefix add to group id. It is used to differentiate ldap groups and local groups. Default is "ldap_"
+ * **defaultRole** is the role attribute to user mambers of a ldap group (see alanning:roles for details). Default is "member"
