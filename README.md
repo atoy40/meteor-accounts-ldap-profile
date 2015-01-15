@@ -27,6 +27,8 @@ put LDAP settings in Meteor.settings (for exemple using METEOR_SETTINGS env or -
       "scope": "one",
       "nameAttribute": "cn",
       "descAttribute": "description",
+      "prefix": "ldap_",
+      "defaultRole": "member"
     }
   },
 ```
@@ -34,6 +36,7 @@ put LDAP settings in Meteor.settings (for exemple using METEOR_SETTINGS env or -
 * **url** and **base** are mandatory
 * ldapjs connexion parameters **timeout** and **connectTimeout** can be used
 * to bind anonymous, set **bindDn** and **bindSecret** to empty string
+* **skipBindError** to true will skip bind error and don't throw error. Default is false.
 * **filter** allow you to specify the search filter. all instances of %uid will be replaced. Default is "(uid=%uid)"
 * default **scope** is "one" (can be "base", "one" and "tree")
 * default **nameAttribute** is displayName, fallback to uid if not found

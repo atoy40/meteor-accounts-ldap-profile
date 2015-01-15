@@ -48,6 +48,11 @@
       return memo
     }, {});
 
+    var existingGroups = _.reduce(Roles.getGroupsForUser(defaultRole), function(memo, group) {
+      memo[group._id] = true
+      return memo
+    }, {});
+
     _.each(session.searchGroups(uid, dn), function(value, key) {
 
       Roles.addUsersToRoles(user._id, simpleRoles ? prefix+key : defaultRole, simpleRoles ? undefined : prefix+key);
