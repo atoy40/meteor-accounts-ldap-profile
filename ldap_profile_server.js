@@ -42,27 +42,39 @@
     }
 
     var simpleRoles = _.isArray(user.roles);
-    //var groupsForUser = Roles.getGroupsForUser(user._id);
+
     var existingGroups = _.reduce(Meteor.ldapgroups.find({}).fetch(), function(memo, group) {
       memo[group._id] = true
       return memo
     }, {});
 
-    var existingGroups = _.reduce(Roles.getGroupsForUser(defaultRole), function(memo, group) {
-      memo[group._id] = true
+    var keepGroups = _.reduce(Roles.getGroupsForUser(user, defaultRole), function(memo, group) {
+      if (prefix === group.substring(0, prefix.length))
+        memo[group] = false;
       return memo
     }, {});
 
     _.each(session.searchGroups(uid, dn), function(value, key) {
+      var grpname = prefix+key;
 
-      Roles.addUsersToRoles(user._id, simpleRoles ? prefix+key : defaultRole, simpleRoles ? undefined : prefix+key);
+      Roles.addUsersToRoles(user, simpleRoles ? grpname : defaultRole, simpleRoles ? undefined : grpname);
+      keepGroups[grpname] = true;
 
-      if (!existingGroups[prefix+key])
+      if (!existingGroups[grpname])
         Meteor.ldapgroups.insert({
-          _id: prefix+key,
+          _id: grpname,
           name: value
         });
     });
+
+    // groups/roles cleaning
+    _.each(keepGroups, function(value, key) {
+      if (value === false) {
+        console.log("accounts-ldap-profile: remove user from group "+key);
+        Roles.removeUsersFromRoles(user, Roles.getRolesForUser(user, key), key);
+      }
+    });
+
   }
 
   var ldapFindUidFromServices = function(user) {

@@ -5,7 +5,11 @@ LDAP support to manage user profiles and groups.
 
 ## Usage
 
-put LDAP settings in Meteor.settings (for exemple using METEOR_SETTINGS env or --settings) like so:
+```
+meteor add atoy40:accounts-ldap-profile
+```
+
+then, add LDAP settings in Meteor.settings (using METEOR_SETTINGS env or --settings in dev mode) like so:
 
 ```
   "ldap": {
@@ -36,7 +40,6 @@ put LDAP settings in Meteor.settings (for exemple using METEOR_SETTINGS env or -
 * **url** and **base** are mandatory
 * ldapjs connexion parameters **timeout** and **connectTimeout** can be used
 * to bind anonymous, set **bindDn** and **bindSecret** to empty string
-* **skipBindError** to true will skip bind error and don't throw error. Default is false.
 * **filter** allow you to specify the search filter. all instances of %uid will be replaced. Default is "(uid=%uid)"
 * default **scope** is "one" (can be "base", "one" and "tree")
 * default **nameAttribute** is displayName, fallback to uid if not found
@@ -44,11 +47,11 @@ put LDAP settings in Meteor.settings (for exemple using METEOR_SETTINGS env or -
 * **forceUsername** to true will copy the uid as user.username
 * **allowNotFound** will validate login attempt even if user is not found or LDAP connexion failed.
 * **supportedServices** is a list of services to search for a id (use as uid for ldap request). Default is to search in all services.
-* group management. It require alanning:roles or a API compatible package
+* **group** management. It require alanning:roles or a API compatible package
  * **base** Base DN to search groups. It is mandatory if you want group management
  * **filter** LDAP filter. %uid and %dn can be used and will be replaced. Default is "(&(objectClass=groupOfNames)(member=%dn))"
  * **scope** LDAP search scope. default is "one" (can be "base", "one" and "tree")
  * **nameAttribute** is the attribute used for group id. Default to "cn".
  * **descAttribute** is the attribute used for group name. Default to "description".
  * **prefix** is a prefix add to group id. It is used to differentiate ldap groups and local groups. Default is "ldap_"
- * **defaultRole** is the role attribute to user mambers of a ldap group (see alanning:roles for details). Default is "member"
+ * **defaultRole** is the role attribute to user members of a ldap group (see alanning:roles for details). Default is "member"
