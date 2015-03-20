@@ -4,7 +4,7 @@
   var client;
 
   if (!Meteor.ldapgroups) {
-    Meteor.ldapgroups = new Meteor.Collection("ldapgroups");
+    Meteor.ldapgroups = new Mongo.Collection("ldapgroups");
   }
 
   Meteor.publish("ldapgroups", function() {
