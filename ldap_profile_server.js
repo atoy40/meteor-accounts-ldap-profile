@@ -224,6 +224,7 @@
     var future = new Future();
 
     var base = this.opts.base;
+    base = base.replace(/%uid/g, uid);
 
     // set filter
     var filter = this.opts.filter || "(uid=%uid)";
