@@ -37,7 +37,8 @@ then, add LDAP settings in Meteor.settings (using METEOR_SETTINGS env or --setti
   },
 ```
 
-* **url** and **base** are mandatory
+* **url** is mandatory.
+* **base** is mandatory. All instances of %uid will be replaced.
 * ldapjs connexion parameters **timeout** and **connectTimeout** can be used
 * to bind anonymous, set **bindDn** and **bindSecret** to empty string
 * **filter** allow you to specify the search filter. all instances of %uid will be replaced. Default is "(uid=%uid)"
